@@ -3,8 +3,7 @@
 #include <string>
 #include <vector>
 #include<fstream>
-std::vector<std::vector<int>> load_map(std::ifstream &in, int rows, int columns){
-	std::vector<std::vector<int>> map;
+int load_map(std::ifstream &in, int rows, int columns, std::vector<std::vector<int>> &map){
 	map.resize(rows);
 	int num{ 0 };
 	for (int i = 0; i < rows; i++) {
@@ -12,13 +11,24 @@ std::vector<std::vector<int>> load_map(std::ifstream &in, int rows, int columns)
 		for (int j = 0; j < columns; j++) {
 			if (!(in >> num)) {
 				if (in.eof()) {
-					return map;
+					return 1;
 				}
 			}
 			map[i][j] = num;
 		}
 	}
-	return map;
+	return 0;
+}
+
+int read_steps(int input_flag, std::string input_path, std::vector<int> &steps) {
+	std::string buffer;
+	// input flag is not set so we read from the stdin
+	if (input_flag == 0) {
+		while (std::getline(std::cin, buffer)) {
+			if (buffer == "")
+				break;
+		}
+	}
 }
 
 
@@ -33,6 +43,7 @@ int main(int argc, char* argv[])
 	}
 	std::cout << argc;
 	std::cout << '\n';
+	// push arguments into vector of strings for easier comparing 
 	for (int i = 1; i < argc; i++) {
 		argum.push_back(argv[i]);
 		std::cout << argv[i];
@@ -41,8 +52,8 @@ int main(int argc, char* argv[])
 	int flag_verify{ 0 };
 	int flag_input{ 0 };
 	int flag_output{ 0 };
-	std::string input_file;
-	std::string output_file;
+	std::string input_file {""};
+	std::string output_file {""};
 	int n = argc - 1;
 	for (int i = 0; i < n; i++) {
 		if (argum[i] == "--verify") {
@@ -81,7 +92,7 @@ int main(int argc, char* argv[])
 		}
 	}
 	if (flag_verify == 0) {
-		std::cout << "Flag verify failed\n";
+		std::cout << "Flag verify doesn't exist\n";
 		return 1;
 	}
 		
@@ -103,8 +114,14 @@ int main(int argc, char* argv[])
 	std::cout << rows;
 	std::cout << "\n";
 	std::cout << columns;
-	std::vector<std::vector<int>> map = load_map(in,rows,columns);
+	std::vector<std::vector<int>> map;
+	// loading map
+	if (load_map(in, rows, columns, map) == 1) {
+		std::cout << "Map plan incomplete\n";
+		return 1;
+	}
 	std::cout << "Som az tu\n";
+	// writing map
 	for (int i = 0; i < rows; i++) {
 		for (int j = 0; j < columns; j++) {
 			std::cout << map[i][j];
@@ -112,5 +129,8 @@ int main(int argc, char* argv[])
 		}
 		std::cout << "\n";
 	}
+	// read input
+	std::vector<int> steps;
+
 	return 0;
 }
