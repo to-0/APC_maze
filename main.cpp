@@ -55,63 +55,29 @@ int read_steps(std::vector<std::vector<int>>& map,int input_flag, std::string in
 	std::string buffer;
 	std::stringstream ss;
 	int valid_path{ 0 };
-	// input flag is not set so we read from the stdin, we read until there is an empty line
-	if (input_flag == 0) {
-		while (std::getline(std::cin, buffer)) {
-			if (buffer == "")
-				break;
-			ss << buffer;
-			int number{ 0 };
-			int count{ 0 };
-			while (ss >> number) {
-				if (count < 2 && ( (count==0 && number < rows) || (count==1 && number < columns)) ) {
-					pos.insert(pos.end(), number);
-					count++;
-				}
-				else if (number == 0 || number == 1 || number == 2 || number == 3) {
-					steps.insert(steps.end(),number);
-				}
-				else {
-					return 1; //invalid step
-				}
-				if (ss.eof()) {
-					ss.clear();
-					break;
-				}
-			}
-			valid_path = verify_steps(map, steps, rows, columns, pos);
-			if (flag_output == 0) {
-				std::cout << valid_path;
-			}
-			else {
-				std::ofstream out;
-				out.open(output_file);
-				if (!out.is_open()) {
-					std::cout << "Cannot open\n";
-					return 1;
-				}
-				out << valid_path;
-				out << "\n";
-			}
-		}
-		return 0;
-	}
-	//input flag is set to 1
 	std::ifstream in;
-	in.open(input_path);
-	while (std::getline(in, buffer)) {
+	//if input flag is set
+	if (input_flag == 1) {
+		in.open(input_path);
+		if (!in.is_open()) {
+			std::cout << "Cannot open\n";
+			return 1;
+		}
+	}
+	// input flag is not set so we read from the stdin, we read until there is an empty line
+	while (std::getline((input_flag==0)?std::cin:in, buffer)) {
 		if (buffer == "")
 			break;
 		ss << buffer;
 		int number{ 0 };
 		int count{ 0 };
 		while (ss >> number) {
-			if (count < 2 && ((count == 0 && number < rows) || (count == 1 && number < columns))) {
+			if (count < 2 && ( (count==0 && number < rows) || (count==1 && number < columns)) ) {
 				pos.insert(pos.end(), number);
 				count++;
 			}
-			else if (number == 1 || number == 2 || number == 3 || number == 4) {
-				steps.insert(steps.end(), number);
+			else if (number == 0 || number == 1 || number == 2 || number == 3) {
+				steps.insert(steps.end(),number);
 			}
 			else {
 				return 1; //invalid step
