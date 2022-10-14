@@ -33,11 +33,11 @@ int load_map(std::ifstream &in, int rows, int columns, std::vector<std::vector<i
 }
 int verify_steps(std::vector<std::vector<int>>& map, std::vector<int>& steps, int rows, int columns, std::vector<int> &pos) {
 	if (pos[0] < 0 || pos[0] >= rows || pos[1] < 0 || pos[1] >= columns) {
-		return 0; //out of map
+		return -1; //out of map
 	}
-	//check if we hit the wall 
+	//started in the wall 
 	if (map[pos[0]][pos[1]] == 0) {
-		return 0; //invalid
+		return -1; //invalid
 	}
 	for (auto step : steps) {
 		switch (step) {
@@ -56,11 +56,11 @@ int verify_steps(std::vector<std::vector<int>>& map, std::vector<int>& steps, in
 		}
 		//check if we are still on map
 		if (pos[0] < 0 || pos[0] >= rows || pos[1] < 0 || pos[1] >= columns) {
-			return 0; //out of map
+			return 0; //out of map, error
 		}
 		//check if we hit the wall 
 		if (map[pos[0]][pos[1]] == 0) {
-			return 0; //invalid
+			return 0; 
 		}
 	}
 	return 1; //valid path
@@ -121,7 +121,13 @@ int read_steps(std::vector<std::vector<int>> map,int input_flag, std::string inp
 			return 1;
 		}
 		ss.clear();
+		if (count < 2) { // no starting positions were supplied
+			return 1;
+		}
 		valid_path = verify_steps(map, steps, rows, columns, position);
+		if (valid_path == -1) {
+			return 1; //error
+		}
 		if (output_flag == 0) {
 			std::cout << valid_path;
 			std::cout << "\n";
