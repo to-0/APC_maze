@@ -39,6 +39,7 @@ int verify_steps(std::vector<std::vector<int>>& map, std::vector<int>& steps, in
 	if (map[pos[0]][pos[1]] == 0) {
 		return -1; //invalid
 	}
+	//move
 	for (auto step : steps) {
 		switch (step) {
 		case 0:
@@ -88,7 +89,7 @@ int read_steps(std::vector<std::vector<int>> map,int input_flag, std::string inp
 			return 1;
 		}
 	}
-	// input flag is not set so we read from the stdin, we read until there is an empty line
+	// reading either from stdin or ifstream
 	while (std::getline((input_flag==0)?std::cin:in, buffer)) {
 		if (buffer == "")
 			break;
@@ -119,7 +120,9 @@ int read_steps(std::vector<std::vector<int>> map,int input_flag, std::string inp
 		if (count < 2) { // no starting positions were supplied
 			return 1;
 		}
+		//verify steps
 		valid_path = verify_steps(map, steps, rows, columns, position);
+		//if there was an error
 		if (valid_path == -1) {
 			return 1; //error
 		}
