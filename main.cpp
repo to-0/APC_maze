@@ -66,16 +66,16 @@ int verify_steps(std::vector<std::vector<int>>& map, std::vector<int>& steps, in
 	return 1; //valid path
 }
 
-int read_steps(std::vector<std::vector<int>> map,int input_flag, std::string input_path, int rows, int columns, int output_flag, std::string output_file) {
+int read_steps(std::vector<std::vector<int>> map,int input_flag, std::string input_path, int rows, int columns, int output_flag, std::string output_path) {
 	std::string buffer;
 	std::vector<int> steps;
 	std::vector<int> position;
-	int valid_path{ 0 };
+	int valid_path{ -1 };
 	std::ifstream in;
 	std::ofstream out;
-	//if input flag is set
+	//opening files if flags are set
 	if (output_flag == 1) {
-		out.open(output_file);
+		out.open(output_path);
 		if (!out.is_open()) {
 			std::cerr << "Cannot open\n";
 			return 1;
@@ -87,11 +87,6 @@ int read_steps(std::vector<std::vector<int>> map,int input_flag, std::string inp
 			std::cerr << "Cannot open\n";
 			return 1;
 		}
-		else {
-			std::cerr << "File opened ";
-			std::cerr << input_path;
-			std::cerr << "\n";
-		}
 	}
 	// input flag is not set so we read from the stdin, we read until there is an empty line
 	while (std::getline((input_flag==0)?std::cin:in, buffer)) {
@@ -102,17 +97,17 @@ int read_steps(std::vector<std::vector<int>> map,int input_flag, std::string inp
 		int number{ 0 };
 		int count{ 0 };
 		while (ss >> number) {
+			// read first starting positions
 			if (count < 2 && ( (count==0 && number < rows && number >=0) || (count==1 && number < columns && number >=0)) ) {
 				position.insert(position.end(), number);
 				count++;
 			}
+			// ife we already have positions we read number, check if the input is valid
 			else if (number == 0 || number == 1 || number == 2 || number == 3) {
 				steps.insert(steps.end(),number);
 			}
 			else {
 				std::cerr << "Invalid step ";
-				std::cerr << number;
-				std::cerr << '\n';
 				return 1; //invalid step
 			}
 		}
@@ -128,13 +123,15 @@ int read_steps(std::vector<std::vector<int>> map,int input_flag, std::string inp
 		if (valid_path == -1) {
 			return 1; //error
 		}
-		if (output_flag == 0) {
-			std::cout << valid_path;
-			std::cout << "\n";
-		}
 		else {
-			out << valid_path;
-			out << "\n";
+			if (output_flag == 0) {
+				std::cout << valid_path;
+				std::cout << '\n';
+			}
+			else {
+				out << valid_path;
+				out << "\n";
+			}
 		}
 		steps.clear();
 		position.clear();
@@ -154,8 +151,6 @@ int main(int argc, char* argv[])
 	// push arguments into vector of strings for easier comparing 
 	for (int i = 1; i < argc; i++) {
 		argum.push_back(argv[i]);
-		std::cerr << argv[i];
-		std::cerr << '\n';
 	}
 	// flags for arguments
 	int flag_verify{ 0 };
@@ -206,26 +201,26 @@ int main(int argc, char* argv[])
 			i++;
 			//check if there is some invalid file path
 			if (output_file[0] == '-') {
-				std::cout << "Invalid file path to output\n";
+				std::cerr << "Invalid file path to output\n";
 				return 1;
 			}
 			continue;
 		}
 		if (argum[i] != "--output-file" && argum[i] != "--input-file" && argum[i] != "--verify") {
-			std::cout << "Invalid arguments";
+			std::cerr << "Invalid arguments";
 			return 1;
 
 		}
 	}
 	if (flag_verify == 0) {
-		std::cout << "Flag verify doesn't exist\n";
+		std::cerr << "Argument verify doesn't exist\n";
 		return 1;
 	}
 	std::string map_path = argv[1];
 	std::ifstream in;
 	in.open(map_path);
 	if (!in.is_open()) {
-		std::cout << "Cannot open\n";
+		std::cerr << "Cannot open\n";
 		return 1;
 	}
 	std::string trash;
@@ -241,9 +236,6 @@ int main(int argc, char* argv[])
 	if (load_map(in, rows, columns, map) == 1) {
 		return 1;
 	}
-	std::cerr << "Map loaded ";
-	std::cerr << map_path;
-	std::cerr << '\n';
 	// read input steps
 	if (read_steps(map,flag_input, input_file,rows, columns,flag_output,output_file) == 1) {
 		return 1; // error
